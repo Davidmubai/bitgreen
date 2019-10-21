@@ -154,7 +154,7 @@ public:
         consensus.fPowNoRetargeting = false;
         consensus.nPosTargetSpacing = 2 * 60; // PoS: 2 minutes
         consensus.nPosTargetTimespan = 60 * 40;
-        consensus.nStakeMinAge = 60 * 60; // 1 hour
+        consensus.nStakeMinAge = 5 * 60; // 1 hour
         consensus.nStakeMaxAge = 60 * 60 * 24; // 24 hours
         consensus.nModifierInterval = 60; // Modifier interval: time to elapse before new modifier is computed (60 seconds)
         consensus.nLastPoWBlock = 100;
@@ -185,19 +185,19 @@ public:
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
          * a large 32-bit integer with any alignment.
          */
-        pchMessageStart[0] = 0xf3;
-        pchMessageStart[1] = 0x43;
-        pchMessageStart[2] = 0xea;
-        pchMessageStart[3] = 0x1c;
+        pchMessageStart[0] = 0x1f;
+        pchMessageStart[1] = 0x00;
+        pchMessageStart[2] = 0x00;
+        pchMessageStart[3] = 0xd0;
         nDefaultPort = 9333;
         nPruneAfterHeight = 100000;
         m_assumed_blockchain_size = 1;
         m_assumed_chain_state_size = 0;
 
-        genesis = CreateGenesisBlock(1565017975, 21212214, 0x1e0ffff0, 1, 0 * COIN);
+        genesis = CreateGenesisBlock(1571690000, 226919, 0x1e0ffff0, 1, 0 * COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
-        assert(consensus.hashGenesisBlock == uint256S("0x00000546a6b03a54ae05f94119e37c55202e90a953058c35364d112d41ded06a"));
-        assert(genesis.hashMerkleRoot == uint256S("0x07cbcacfc822fba6bbeb05312258fa43b96a68fc310af8dfcec604591763f7cf"));
+        assert(consensus.hashGenesisBlock == uint256S("0x00000dba9f5bd97a21dea695346bfee72ac55baf16b59b871f41661ae9a532af"));
+//      assert(genesis.hashMerkleRoot == uint256S("0x07cbcacfc822fba6bbeb05312258fa43b96a68fc310af8dfcec604591763f7cf"));
 
         // Note that of those which support the service bits prefix, most only support a subset of
         // possible options.

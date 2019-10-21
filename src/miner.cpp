@@ -219,22 +219,19 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 
     CValidationState state;
 
-    // if (!fProofOfStake) {
-    //     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
-    // } else {
-        coinbaseTx.vin[0].scriptSig = CScript() << OP_RETURN;
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    coinbaseTx.vin[0].scriptSig = CScript() << OP_RETURN;
+    CCbTx cbTx;
+    cbTx.nVersion = (nHeight > chainparams.GetConsensus().nLLMQActivationHeight) ? 2 : 1;
+    cbTx.nHeight = nHeight;
 
-        CCbTx cbTx;
-        cbTx.nVersion = (nHeight > chainparams.GetConsensus().nLLMQActivationHeight) ? 2 : 1;
-        cbTx.nHeight = nHeight;
+    if (!CalcCbTxMerkleRootMNList(*pblock, pindexPrev, cbTx.merkleRootMNList, state))
+        throw std::runtime_error(strprintf("%s: CalcCbTxMerkleRootMNList failed: %s", __func__, FormatStateMessage(state)));
+    if (!CalcCbTxMerkleRootQuorums(*pblock, pindexPrev, cbTx.merkleRootQuorums, state))
+        throw std::runtime_error(strprintf("%s: CalcCbTxMerkleRootQuorums failed: %s", __func__, FormatStateMessage(state)));
 
-        if (!CalcCbTxMerkleRootMNList(*pblock, pindexPrev, cbTx.merkleRootMNList, state))
-            throw std::runtime_error(strprintf("%s: CalcCbTxMerkleRootMNList failed: %s", __func__, FormatStateMessage(state)));
-        if (!CalcCbTxMerkleRootQuorums(*pblock, pindexPrev, cbTx.merkleRootQuorums, state))
-            throw std::runtime_error(strprintf("%s: CalcCbTxMerkleRootQuorums failed: %s", __func__, FormatStateMessage(state)));
-
-        SetTxPayload(coinbaseTx, cbTx);
-    // }
+    SetTxPayload(coinbaseTx, cbTx);
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
     if (fIncludeWitness)

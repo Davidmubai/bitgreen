@@ -2127,10 +2127,12 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     int64_t nTime4_2 = GetTimeMicros(); nTimeVerify += nTime4_2 - nTime4_1;
     LogPrint(BCLog::BENCHMARK, "      - IsBlockPayeeValid: %.2fms [%.2fs]\n", MILLI * (nTime4_2 - nTime4_1), nTimeVerify * MICRO);
 
-    if (!ProcessSpecialTxsInBlock(block, pindex, state, fJustCheck, fScriptChecks)) {
-        LogPrintf("%s: ProcessSpecialTxsInBlock for block %s failed with %s\n",
-                    __func__, pindex->GetBlockHash().ToString(), FormatStateMessage(state));
-        return false;
+    if (pindex->nHeight > chainparams.GetConsensus().nLLMQActivationHeight) {
+        if (!ProcessSpecialTxsInBlock(block, pindex, state, fJustCheck, fScriptChecks)) {
+            LogPrintf("%s: ProcessSpecialTxsInBlock for block %s failed with %s\n",
+                      __func__, pindex->GetBlockHash().ToString(), FormatStateMessage(state));
+            return false;
+        }
     }
 
     int64_t nTime4_3 = GetTimeMicros(); nTimeVerify += nTime4_3 - nTime4_2;
@@ -3758,7 +3760,8 @@ bool CChainState::AcceptBlock(const std::shared_ptr<const CBlock>& pblock, CVali
     }
 
     // proof-of-stake: check PoS
-    if (fCheckPoS && !PoSContextualBlockChecks(block, state, pindex, false)) {
+    bool fProofOfStake = block.IsProofOfStake();
+    if (fProofOfStake && !PoSContextualBlockChecks(block, state, pindex, false)) {
         pindex->nStatus |= BLOCK_FAILED_VALID;
         setDirtyBlockIndex.insert(pindex);
         return state.Invalid(ValidationInvalidReason::CONSENSUS, false, REJECT_INVALID, "bad-pos", "proof-of-stake is incorrect");

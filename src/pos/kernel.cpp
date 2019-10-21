@@ -15,8 +15,12 @@
 #include <index/txindex.h>
 #include <util/time.h>
 
+#include <boost/assign/list_of.hpp>
+
 // Hard checkpoints of stake modifiers to ensure they are deterministic
-static std::map<int, unsigned int> mapStakeModifierCheckpoints = {};
+static std::map<int, unsigned int> mapStakeModifierCheckpoints =
+     boost::assign::map_list_of
+     (0, 0x0e00670bu);
 
 // Get the last stake modifier and its generation time from a given block
 static bool GetLastStakeModifier(const CBlockIndex* pindex, uint64_t& nStakeModifier, int64_t& nModifierTime)
@@ -416,7 +420,7 @@ unsigned int GetStakeModifierChecksum(const CBlockIndex* pindex)
 // Check stake modifier hard checkpoints
 bool CheckStakeModifierCheckpoints(int nHeight, unsigned int nStakeModifierChecksum)
 {
-    if (Params().NetworkIDString() != "main") return true; // Testnet or Regtest has no checkpoints
+    if (Params().NetworkIDString() != CBaseChainParams::MAIN) return true; // Testnet or Regtest has no checkpoints
     if (mapStakeModifierCheckpoints.count(nHeight))
         return nStakeModifierChecksum == mapStakeModifierCheckpoints[nHeight];
 
